@@ -6,8 +6,10 @@ import {
   ClipboardList,
   BarChart3,
   Activity,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -17,7 +19,14 @@ const navItems = [
   { to: '/analysis/compare', icon: BarChart3, label: 'Analysis' },
 ];
 
+const adminNavItems = [
+  { to: '/settings/sports', icon: Settings, label: 'Settings' },
+];
+
 export function Sidebar() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.is_superuser ?? false;
+
   return (
     <aside className="hidden w-64 flex-shrink-0 border-r border-gray-200 bg-white lg:block">
       <div className="flex h-full flex-col">
@@ -48,6 +57,33 @@ export function Sidebar() {
               {item.label}
             </NavLink>
           ))}
+
+          {/* Admin Section */}
+          {isAdmin && (
+            <>
+              <div className="my-4 border-t border-gray-200" />
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Admin
+              </p>
+              {adminNavItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* Footer */}

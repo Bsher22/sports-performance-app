@@ -11,6 +11,7 @@ import { AssessmentFlowPage } from '@/features/assessments/AssessmentFlowPage';
 import { PlayerProgressPage } from '@/features/analysis/PlayerProgressPage';
 import { PlayerComparisonPage } from '@/features/analysis/PlayerComparisonPage';
 import { TeamOverviewPage } from '@/features/analysis/TeamOverviewPage';
+import { SportsSettingsPage } from '@/features/settings/SportsSettingsPage';
 import { useEffect } from 'react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -64,6 +65,9 @@ function App() {
           <Route path="analysis/player/:id" element={<PlayerProgressPage />} />
           <Route path="analysis/compare" element={<PlayerComparisonPage />} />
           <Route path="analysis/team/:id" element={<TeamOverviewPage />} />
+
+          {/* Settings (Admin) */}
+          <Route path="settings/sports" element={<SportsSettingsPage />} />
         </Route>
 
         {/* Catch all */}
