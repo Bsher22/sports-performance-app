@@ -1,0 +1,76 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { LoginPage } from '@/features/auth/LoginPage';
+import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { PlayersListPage } from '@/features/players/PlayersListPage';
+import { PlayerDetailPage } from '@/features/players/PlayerDetailPage';
+import { TeamsListPage } from '@/features/teams/TeamsListPage';
+import { TeamDetailPage } from '@/features/teams/TeamDetailPage';
+import { AssessmentFlowPage } from '@/features/assessments/AssessmentFlowPage';
+import { PlayerProgressPage } from '@/features/analysis/PlayerProgressPage';
+import { PlayerComparisonPage } from '@/features/analysis/PlayerComparisonPage';
+import { TeamOverviewPage } from '@/features/analysis/TeamOverviewPage';
+import { useEffect } from 'react';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, accessToken, fetchUser, user } = useAuthStore();
+
+  useEffect(() => {
+    if (accessToken && !user) {
+      fetchUser();
+    }
+  }, [accessToken, user, fetchUser]);
+
+  if (!isAuthenticated && !accessToken) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+
+          {/* Players */}
+          <Route path="players" element={<PlayersListPage />} />
+          <Route path="players/:id" element={<PlayerDetailPage />} />
+
+          {/* Teams */}
+          <Route path="teams" element={<TeamsListPage />} />
+          <Route path="teams/:id" element={<TeamDetailPage />} />
+
+          {/* Assessments */}
+          <Route path="assessments" element={<AssessmentFlowPage />} />
+          <Route path="assessments/:type" element={<AssessmentFlowPage />} />
+
+          {/* Analysis */}
+          <Route path="analysis/player/:id" element={<PlayerProgressPage />} />
+          <Route path="analysis/compare" element={<PlayerComparisonPage />} />
+          <Route path="analysis/team/:id" element={<TeamOverviewPage />} />
+        </Route>
+
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

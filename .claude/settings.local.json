@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(railway --version:*)",
+      "Bash(npx wrangler:*)",
+      "Bash(npm install:*)",
+      "Bash(npx @railway/cli:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

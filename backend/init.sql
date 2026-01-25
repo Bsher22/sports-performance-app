@@ -1,0 +1,9 @@
+-- Create schemas
+CREATE SCHEMA IF NOT EXISTS auth;
+CREATE SCHEMA IF NOT EXISTS organization;
+CREATE SCHEMA IF NOT EXISTS assessments;
+CREATE SCHEMA IF NOT EXISTS correctives;
+CREATE SCHEMA IF NOT EXISTS analysis;
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
