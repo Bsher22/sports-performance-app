@@ -55,7 +55,7 @@ export function PlayerComparisonPage() {
   };
 
   const chartData = comparison
-    ? Object.entries(comparison.comparison_data).map(([playerId, data]) => ({
+    ? Object.entries(comparison.comparison_data).map(([_playerId, data]) => ({
         name: data.player_name.split(' ')[0],
         score: data.overall_score,
         color: data.color,
@@ -143,7 +143,7 @@ export function PlayerComparisonPage() {
                         <YAxis domain={[0, 100]} />
                         <Tooltip />
                         <Bar dataKey="score">
-                          {chartData.map((entry, index) => (
+                          {chartData.map((_entry, index) => (
                             <Cell
                               key={`cell-${index}`}
                               fill={COLORS[index % COLORS.length]}

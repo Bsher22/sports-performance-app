@@ -8,7 +8,9 @@
       "Bash(npx @railway/cli:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(start cmd /k \"npx @railway/cli login\")"
+      "Bash(start cmd /k \"npx @railway/cli login\")",
+      "Bash(git remote:*)",
+      "Bash(git push:*)"
     ]
   }
 }

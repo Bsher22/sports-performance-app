@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AssessmentSession, AssessmentType } from '@/types/assessment';
+import { AssessmentSession } from '@/types/assessment';
 
 type AssessmentStep = 'select' | 'input' | 'review';
 

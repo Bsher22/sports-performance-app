@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { teamsApi } from '@/api/teams';
 import { analysisApi } from '@/api/analysis';
-import { formatAssessmentType, getColorBgClass } from '@/lib/utils';
+import { formatAssessmentType } from '@/lib/utils';
 import { AssessmentType } from '@/types/assessment';
 import { ArrowLeft, Trophy, Users, BarChart3 } from 'lucide-react';
 import {
