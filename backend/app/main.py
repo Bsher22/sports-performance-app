@@ -11,9 +11,10 @@ from app.core.security import get_password_hash
 
 # Import all models to register them with Base.metadata
 from app.models import (
-    user, team, player, assessment,
+    user, team, sport, player, assessment,
     onbaseu, pitcher_onbaseu, tpi_power, sprint, kams, corrective
 )
+from app.models import Sport
 
 settings = get_settings()
 
@@ -55,11 +56,152 @@ def create_initial_admin():
         db.close()
 
 
+def create_initial_sports():
+    """Create initial RIT sports if none exist."""
+    db = SessionLocal()
+    try:
+        sport_count = db.query(Sport).count()
+        if sport_count == 0:
+            # RIT Athletic Department Sports with their available assessments
+            sports_data = [
+                {
+                    "name": "Baseball",
+                    "code": "baseball",
+                    "description": "RIT Baseball - Division III",
+                    "available_assessments": ["onbaseu", "pitcher_onbaseu", "tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Basketball",
+                    "code": "mens_basketball",
+                    "description": "RIT Men's Basketball - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Basketball",
+                    "code": "womens_basketball",
+                    "description": "RIT Women's Basketball - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Ice Hockey",
+                    "code": "mens_hockey",
+                    "description": "RIT Men's Ice Hockey - Division I",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Ice Hockey",
+                    "code": "womens_hockey",
+                    "description": "RIT Women's Ice Hockey - Division I",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Soccer",
+                    "code": "mens_soccer",
+                    "description": "RIT Men's Soccer - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Soccer",
+                    "code": "womens_soccer",
+                    "description": "RIT Women's Soccer - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Lacrosse",
+                    "code": "mens_lacrosse",
+                    "description": "RIT Men's Lacrosse - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Lacrosse",
+                    "code": "womens_lacrosse",
+                    "description": "RIT Women's Lacrosse - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Softball",
+                    "code": "softball",
+                    "description": "RIT Softball - Division III",
+                    "available_assessments": ["onbaseu", "pitcher_onbaseu", "tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Swimming & Diving",
+                    "code": "mens_swimming",
+                    "description": "RIT Men's Swimming & Diving - Division III",
+                    "available_assessments": ["tpi_power", "kams"],
+                },
+                {
+                    "name": "Women's Swimming & Diving",
+                    "code": "womens_swimming",
+                    "description": "RIT Women's Swimming & Diving - Division III",
+                    "available_assessments": ["tpi_power", "kams"],
+                },
+                {
+                    "name": "Men's Track & Field",
+                    "code": "mens_track",
+                    "description": "RIT Men's Track & Field - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Track & Field",
+                    "code": "womens_track",
+                    "description": "RIT Women's Track & Field - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Tennis",
+                    "code": "mens_tennis",
+                    "description": "RIT Men's Tennis - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Women's Tennis",
+                    "code": "womens_tennis",
+                    "description": "RIT Women's Tennis - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Volleyball",
+                    "code": "volleyball",
+                    "description": "RIT Volleyball - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Wrestling",
+                    "code": "wrestling",
+                    "description": "RIT Wrestling - Division III",
+                    "available_assessments": ["tpi_power", "sprint", "kams"],
+                },
+                {
+                    "name": "Men's Crew",
+                    "code": "mens_crew",
+                    "description": "RIT Men's Crew - Club Sport",
+                    "available_assessments": ["tpi_power", "kams"],
+                },
+                {
+                    "name": "Women's Crew",
+                    "code": "womens_crew",
+                    "description": "RIT Women's Crew - Club Sport",
+                    "available_assessments": ["tpi_power", "kams"],
+                },
+            ]
+
+            for sport_data in sports_data:
+                sport = Sport(**sport_data)
+                db.add(sport)
+
+            db.commit()
+            print(f"Created {len(sports_data)} initial sports for RIT Athletic Department")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     init_db()
     create_initial_admin()
+    create_initial_sports()
     yield
     # Shutdown
     pass

@@ -8,6 +8,7 @@ class PlayerBase(BaseModel):
     first_name: str
     last_name: str
     team_id: Optional[int] = None
+    sport_id: Optional[int] = None
     graduation_year: Optional[int] = None
     date_of_birth: Optional[date] = None
     is_pitcher: bool = False
@@ -27,6 +28,7 @@ class PlayerUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     team_id: Optional[int] = None
+    sport_id: Optional[int] = None
     graduation_year: Optional[int] = None
     date_of_birth: Optional[date] = None
     is_pitcher: Optional[bool] = None
@@ -44,6 +46,7 @@ class PlayerResponse(PlayerBase):
     full_name: str
     display_name: str
     team_name: Optional[str] = None
+    sport_name: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -56,6 +59,8 @@ class PlayerListResponse(BaseModel):
     player_code: str
     full_name: str
     team_name: Optional[str] = None
+    sport_id: Optional[int] = None
+    sport_name: Optional[str] = None
     is_pitcher: bool
     is_position_player: bool
     is_active: bool

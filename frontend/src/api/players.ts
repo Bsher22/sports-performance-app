@@ -5,6 +5,7 @@ export interface PlayerFilters {
   skip?: number;
   limit?: number;
   team_id?: number;
+  sport_id?: number;
   is_pitcher?: boolean;
   is_active?: boolean;
   search?: string;

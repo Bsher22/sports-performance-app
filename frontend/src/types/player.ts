@@ -7,6 +7,8 @@ export interface Player {
   display_name: string;
   team_id: number | null;
   team_name: string | null;
+  sport_id: number | null;
+  sport_name: string | null;
   graduation_year: number | null;
   date_of_birth: string | null;
   is_pitcher: boolean;
@@ -25,6 +27,8 @@ export interface PlayerListItem {
   player_code: string;
   full_name: string;
   team_name: string | null;
+  sport_id: number | null;
+  sport_name: string | null;
   is_pitcher: boolean;
   is_position_player: boolean;
   is_active: boolean;
@@ -35,6 +39,7 @@ export interface PlayerCreate {
   first_name: string;
   last_name: string;
   team_id?: number | null;
+  sport_id?: number | null;
   graduation_year?: number | null;
   date_of_birth?: string | null;
   is_pitcher?: boolean;

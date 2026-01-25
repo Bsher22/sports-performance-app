@@ -7,7 +7,7 @@ from datetime import datetime
 
 from app.api.deps import get_db, get_current_active_user
 from app.core.exceptions import NotFoundException, BadRequestException
-from app.models import Player, Team, AssessmentSession
+from app.models import Player, Team, Sport, AssessmentSession
 from app.schemas.player import (
     PlayerCreate,
     PlayerUpdate,
@@ -49,6 +49,7 @@ def list_players(
     skip: int = 0,
     limit: int = 100,
     team_id: Optional[int] = None,
+    sport_id: Optional[int] = None,
     is_pitcher: Optional[bool] = None,
     is_active: Optional[bool] = True,
     search: Optional[str] = None,
@@ -60,6 +61,9 @@ def list_players(
 
     if team_id is not None:
         query = query.filter(Player.team_id == team_id)
+
+    if sport_id is not None:
+        query = query.filter(Player.sport_id == sport_id)
 
     if is_pitcher is not None:
         query = query.filter(Player.is_pitcher == is_pitcher)
@@ -84,6 +88,8 @@ def list_players(
             player_code=player.player_code,
             full_name=player.full_name,
             team_name=player.team.name if player.team else None,
+            sport_id=player.sport_id,
+            sport_name=player.sport.name if player.sport else None,
             is_pitcher=player.is_pitcher,
             is_position_player=player.is_position_player,
             is_active=player.is_active,
@@ -106,6 +112,12 @@ def create_player(
         team = db.query(Team).filter(Team.id == player_data.team_id).first()
         if not team:
             raise BadRequestException("Team not found")
+
+    # Validate sport exists if provided
+    if player_data.sport_id:
+        sport = db.query(Sport).filter(Sport.id == player_data.sport_id).first()
+        if not sport:
+            raise BadRequestException("Sport not found")
 
     # Generate player code if not provided
     player_code = player_data.player_code or generate_player_code(db)
@@ -160,6 +172,12 @@ def update_player(
         team = db.query(Team).filter(Team.id == update_data["team_id"]).first()
         if not team:
             raise BadRequestException("Team not found")
+
+    # Validate sport if being updated
+    if "sport_id" in update_data and update_data["sport_id"]:
+        sport = db.query(Sport).filter(Sport.id == update_data["sport_id"]).first()
+        if not sport:
+            raise BadRequestException("Sport not found")
 
     for field, value in update_data.items():
         setattr(player, field, value)
@@ -222,6 +240,7 @@ def _build_player_response(player: Player) -> PlayerResponse:
         first_name=player.first_name,
         last_name=player.last_name,
         team_id=player.team_id,
+        sport_id=player.sport_id,
         graduation_year=player.graduation_year,
         date_of_birth=player.date_of_birth,
         is_pitcher=player.is_pitcher,
@@ -234,6 +253,7 @@ def _build_player_response(player: Player) -> PlayerResponse:
         full_name=player.full_name,
         display_name=player.display_name,
         team_name=player.team.name if player.team else None,
+        sport_name=player.sport.name if player.sport else None,
         created_at=player.created_at,
         updated_at=player.updated_at,
     )

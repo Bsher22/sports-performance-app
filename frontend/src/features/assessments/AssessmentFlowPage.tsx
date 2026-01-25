@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -6,24 +6,18 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { playersApi } from '@/api/players';
+import { sportsApi } from '@/api/sports';
 import { sessionsApi } from '@/api/assessments';
 import { useAssessmentStore } from '@/store/assessmentStore';
 import { AssessmentType } from '@/types/assessment';
 import { formatAssessmentType } from '@/lib/utils';
-import { ClipboardList, User, Calendar } from 'lucide-react';
-
-const ASSESSMENT_TYPES: AssessmentType[] = [
-  'onbaseu',
-  'pitcher_onbaseu',
-  'tpi_power',
-  'sprint',
-  'kams',
-];
+import { ClipboardList, User, Calendar, Trophy } from 'lucide-react';
 
 export function AssessmentFlowPage() {
   const [searchParams] = useSearchParams();
   const preselectedPlayerId = searchParams.get('player');
 
+  const [selectedSportId, setSelectedSportId] = useState<number | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(preselectedPlayerId);
   const [selectedType, setSelectedType] = useState<AssessmentType | null>(null);
   const [assessmentDate, setAssessmentDate] = useState(
@@ -32,10 +26,38 @@ export function AssessmentFlowPage() {
 
   const { startAssessment, currentStep } = useAssessmentStore();
 
-  const { data: players, isLoading: loadingPlayers } = useQuery({
-    queryKey: ['players'],
-    queryFn: () => playersApi.list({ is_active: true }),
+  // Fetch all sports
+  const { data: sports, isLoading: loadingSports } = useQuery({
+    queryKey: ['sports'],
+    queryFn: () => sportsApi.list(),
   });
+
+  // Fetch players filtered by selected sport
+  const { data: players, isLoading: loadingPlayers } = useQuery({
+    queryKey: ['players', { sport_id: selectedSportId, is_active: true }],
+    queryFn: () => playersApi.list({ sport_id: selectedSportId ?? undefined, is_active: true }),
+    enabled: selectedSportId !== null,
+  });
+
+  // Get available assessment types for the selected sport
+  const availableAssessmentTypes = useMemo(() => {
+    if (!selectedSportId || !sports) return [];
+    const selectedSport = sports.find((s) => s.id === selectedSportId);
+    return selectedSport?.available_assessments ?? [];
+  }, [selectedSportId, sports]);
+
+  // Get the selected sport name for display
+  const selectedSportName = useMemo(() => {
+    if (!selectedSportId || !sports) return null;
+    return sports.find((s) => s.id === selectedSportId)?.name ?? null;
+  }, [selectedSportId, sports]);
+
+  // Reset dependent selections when sport changes
+  const handleSportChange = (sportId: number | null) => {
+    setSelectedSportId(sportId);
+    setSelectedPlayerId(null);
+    setSelectedType(null);
+  };
 
   const handleStartAssessment = async () => {
     if (!selectedPlayerId || !selectedType) return;
@@ -53,7 +75,7 @@ export function AssessmentFlowPage() {
     }
   };
 
-  if (loadingPlayers) {
+  if (loadingSports) {
     return (
       <PageContainer title="Assessments">
         <div className="flex items-center justify-center py-12">
@@ -66,36 +88,77 @@ export function AssessmentFlowPage() {
   return (
     <PageContainer
       title="Assessments"
-      description="Select a player and assessment type to begin"
+      description="Select a sport, athlete, and assessment type to begin"
     >
       {currentStep === 'select' && (
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* Player Selection */}
+        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+          {/* Sport Selection */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Select Player
+                <Trophy className="h-5 w-5" />
+                Select Sport
               </CardTitle>
             </CardHeader>
             <CardContent>
               <select
-                value={selectedPlayerId || ''}
-                onChange={(e) => setSelectedPlayerId(e.target.value || null)}
+                value={selectedSportId ?? ''}
+                onChange={(e) => handleSportChange(e.target.value ? Number(e.target.value) : null)}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="">Choose a player...</option>
+                <option value="">Choose a sport...</option>
+                {sports?.map((sport) => (
+                  <option key={sport.id} value={sport.id}>
+                    {sport.name}
+                  </option>
+                ))}
+              </select>
+              {selectedSportId && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {availableAssessmentTypes.length} assessment type{availableAssessmentTypes.length !== 1 ? 's' : ''} available
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Player Selection */}
+          <Card className={!selectedSportId ? 'opacity-50' : ''}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Select Athlete
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <select
+                value={selectedPlayerId ?? ''}
+                onChange={(e) => setSelectedPlayerId(e.target.value || null)}
+                disabled={!selectedSportId}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="">
+                  {!selectedSportId
+                    ? 'Select a sport first...'
+                    : loadingPlayers
+                    ? 'Loading athletes...'
+                    : 'Choose an athlete...'}
+                </option>
                 {players?.map((player) => (
                   <option key={player.id} value={player.id}>
                     {player.full_name} ({player.team_name || 'No team'})
                   </option>
                 ))}
               </select>
+              {selectedSportId && !loadingPlayers && players && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {players.length} athlete{players.length !== 1 ? 's' : ''} in {selectedSportName}
+                </p>
+              )}
             </CardContent>
           </Card>
 
           {/* Assessment Type Selection */}
-          <Card>
+          <Card className={!selectedSportId ? 'opacity-50' : ''}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ClipboardList className="h-5 w-5" />
@@ -103,26 +166,36 @@ export function AssessmentFlowPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {ASSESSMENT_TYPES.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`w-full rounded-lg border p-3 text-left transition-colors ${
-                    selectedType === type
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <p className="font-medium">{formatAssessmentType(type)}</p>
-                  <p className="text-sm text-gray-500">
-                    {type === 'onbaseu' && 'Position player mobility assessment'}
-                    {type === 'pitcher_onbaseu' && 'Pitcher-specific mobility assessment'}
-                    {type === 'tpi_power' && 'Power and strength metrics'}
-                    {type === 'sprint' && 'Speed and agility testing'}
-                    {type === 'kams' && 'Kinetic movement analysis'}
-                  </p>
-                </button>
-              ))}
+              {!selectedSportId ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Select a sport to see available assessments
+                </p>
+              ) : availableAssessmentTypes.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  No assessments configured for this sport
+                </p>
+              ) : (
+                availableAssessmentTypes.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type)}
+                    className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                      selectedType === type
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <p className="font-medium">{formatAssessmentType(type)}</p>
+                    <p className="text-sm text-gray-500">
+                      {type === 'onbaseu' && 'Position player mobility assessment'}
+                      {type === 'pitcher_onbaseu' && 'Pitcher-specific mobility assessment'}
+                      {type === 'tpi_power' && 'Power and strength metrics'}
+                      {type === 'sprint' && 'Speed and agility testing'}
+                      {type === 'kams' && 'Kinetic movement analysis'}
+                    </p>
+                  </button>
+                ))
+              )}
             </CardContent>
           </Card>
 
@@ -146,7 +219,11 @@ export function AssessmentFlowPage() {
                 <h4 className="font-medium">Summary</h4>
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
                   <p>
-                    Player:{' '}
+                    Sport:{' '}
+                    {selectedSportName || 'Not selected'}
+                  </p>
+                  <p>
+                    Athlete:{' '}
                     {selectedPlayerId
                       ? players?.find((p) => p.id === selectedPlayerId)?.full_name
                       : 'Not selected'}

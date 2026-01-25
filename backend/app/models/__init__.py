@@ -1,5 +1,6 @@
 from app.models.user import User, Role, UserRole
 from app.models.team import Team
+from app.models.sport import Sport
 from app.models.player import Player
 from app.models.assessment import AssessmentSession
 from app.models.onbaseu import OnBaseUResult
@@ -14,6 +15,7 @@ __all__ = [
     "Role",
     "UserRole",
     "Team",
+    "Sport",
     "Player",
     "AssessmentSession",
     "OnBaseUResult",

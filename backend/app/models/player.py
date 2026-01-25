@@ -15,6 +15,7 @@ class Player(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     team_id = Column(Integer, ForeignKey("organization.teams.id"), nullable=True)
+    sport_id = Column(Integer, ForeignKey("organization.sports.id"), nullable=True)
     graduation_year = Column(Integer, nullable=True)
     date_of_birth = Column(Date, nullable=True)
 
@@ -35,6 +36,7 @@ class Player(Base):
 
     # Relationships
     team = relationship("Team", back_populates="players")
+    sport = relationship("Sport", back_populates="players")
     assessment_sessions = relationship(
         "AssessmentSession", back_populates="player", cascade="all, delete-orphan"
     )
