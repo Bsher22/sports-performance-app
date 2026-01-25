@@ -34,6 +34,35 @@ def init_db():
     Base.metadata.create_all(bind=engine)
     print("Database tables created successfully")
 
+    # Run migrations for schema changes
+    run_migrations()
+
+
+def run_migrations():
+    """Run database migrations for schema changes."""
+    db = SessionLocal()
+    try:
+        # Migration: Add sport_id column to players table if it doesn't exist
+        result = db.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = 'organization'
+            AND table_name = 'players'
+            AND column_name = 'sport_id'
+        """))
+        if result.fetchone() is None:
+            db.execute(text("""
+                ALTER TABLE organization.players
+                ADD COLUMN sport_id INTEGER REFERENCES organization.sports(id)
+            """))
+            db.commit()
+            print("Migration: Added sport_id column to players table")
+    except Exception as e:
+        print(f"Migration warning: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 
 def create_initial_admin():
     """Create initial admin user if no users exist."""
