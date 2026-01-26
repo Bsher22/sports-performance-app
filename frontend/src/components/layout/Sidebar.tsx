@@ -32,9 +32,9 @@ export function Sidebar() {
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center border-b border-gray-200 px-6">
-          <Activity className="h-8 w-8 text-blue-600" />
+          <Activity className="h-8 w-8 text-orange-500" />
           <span className="ml-2 text-xl font-bold text-gray-900">
-            Sports Perf
+            TigerTrain
           </span>
         </div>
 
@@ -89,7 +89,7 @@ export function Sidebar() {
         {/* Footer */}
         <div className="border-t border-gray-200 p-4">
           <p className="text-xs text-gray-500">
-            Sports Performance App v1.0
+            TigerTrain v1.0
           </p>
         </div>
       </div>

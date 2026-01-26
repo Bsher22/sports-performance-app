@@ -28,12 +28,12 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-            <Activity className="h-6 w-6 text-blue-600" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-100">
+            <Activity className="h-6 w-6 text-orange-500" />
           </div>
-          <CardTitle>Welcome Back</CardTitle>
+          <CardTitle>Welcome to TigerTrain</CardTitle>
           <CardDescription>
-            Sign in to access the Sports Performance App
+            Sign in to access RIT Athletics Performance Tracking
           </CardDescription>
         </CardHeader>
 

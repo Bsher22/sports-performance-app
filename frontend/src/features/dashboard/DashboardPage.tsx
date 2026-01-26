@@ -32,7 +32,7 @@ export function DashboardPage() {
   }
 
   return (
-    <PageContainer title="Dashboard" description="Welcome to the Sports Performance App">
+    <PageContainer title="Dashboard" description="Welcome to TigerTrain - RIT Athletics Performance Tracking">
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
