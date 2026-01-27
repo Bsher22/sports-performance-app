@@ -14,7 +14,7 @@ from app.models import (
     user, team, sport, player, assessment,
     onbaseu, pitcher_onbaseu, tpi_power, sprint, kams, corrective
 )
-from app.models import Sport
+from app.models import Sport, Player
 
 settings = get_settings()
 
@@ -225,12 +225,47 @@ def create_initial_sports():
         db.close()
 
 
+def create_sample_players():
+    """Create sample players for testing."""
+    db = SessionLocal()
+    try:
+        player_count = db.query(Player).count()
+        if player_count == 0:
+            # Get Baseball sport ID
+            baseball = db.query(Sport).filter(Sport.code == "baseball").first()
+            if not baseball:
+                print("Baseball sport not found, skipping sample players")
+                return
+
+            # Brian Sheridan - Baseball player
+            brian = Player(
+                player_code="P20160001",
+                first_name="Brian",
+                last_name="Sheridan",
+                sport_id=baseball.id,
+                graduation_year=2016,
+                is_pitcher=True,
+                is_position_player=True,
+                bats="R",
+                throws="L",
+                height_inches=71,  # 5'11"
+                weight_lbs=185,
+                is_active=True,
+            )
+            db.add(brian)
+            db.commit()
+            print("Created sample player: Brian Sheridan (Baseball)")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     init_db()
     create_initial_admin()
     create_initial_sports()
+    create_sample_players()
     yield
     # Shutdown
     pass
