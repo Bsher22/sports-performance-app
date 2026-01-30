@@ -13,7 +13,7 @@ import { useAssessmentStore } from '@/store/assessmentStore';
 import { AssessmentType } from '@/types/assessment';
 import { PlayerListItem } from '@/types/player';
 import { formatAssessmentType } from '@/lib/utils';
-import { ClipboardList, User, Calendar, Trophy, Users, UserPlus, X } from 'lucide-react';
+import { ClipboardList, User, Calendar, Trophy, Users, UserPlus, X, AlertCircle } from 'lucide-react';
 
 // Import assessment input components
 import {
@@ -45,6 +45,8 @@ export function AssessmentFlowPage() {
   const [selectedPlayers, setSelectedPlayers] = useState<PlayerListItem[]>([]);
   const [playerSearchQuery, setPlayerSearchQuery] = useState('');
   const [isStartingGroup, setIsStartingGroup] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     startAssessment,
@@ -99,11 +101,32 @@ export function AssessmentFlowPage() {
     setSelectedType(null);
     setSelectedPlayers([]);
     setPlayerSearchQuery('');
+    setError(null);
+  };
+
+  // Extract error message from Axios error
+  const getErrorMessage = (err: unknown): string => {
+    if (err && typeof err === 'object' && 'response' in err) {
+      const response = (err as { response?: { data?: { detail?: string; message?: string } } }).response;
+      if (response?.data?.detail) {
+        return response.data.detail;
+      }
+      if (response?.data?.message) {
+        return response.data.message;
+      }
+    }
+    if (err instanceof Error) {
+      return err.message;
+    }
+    return 'An unexpected error occurred';
   };
 
   // Single athlete assessment start
   const handleStartAssessment = async () => {
     if (!selectedPlayerId || !selectedType) return;
+
+    setIsStarting(true);
+    setError(null);
 
     try {
       const session = await sessionsApi.create({
@@ -113,8 +136,11 @@ export function AssessmentFlowPage() {
       });
 
       startAssessment(session);
-    } catch (error) {
-      console.error('Failed to create session:', error);
+    } catch (err) {
+      console.error('Failed to create session:', err);
+      setError(getErrorMessage(err));
+    } finally {
+      setIsStarting(false);
     }
   };
 
@@ -123,6 +149,8 @@ export function AssessmentFlowPage() {
     if (selectedPlayers.length === 0 || !selectedType) return;
 
     setIsStartingGroup(true);
+    setError(null);
+
     try {
       // Create sessions for all selected players
       const sessions = await Promise.all(
@@ -136,8 +164,9 @@ export function AssessmentFlowPage() {
       );
 
       startGroupAssessment(sessions, selectedPlayers);
-    } catch (error) {
-      console.error('Failed to create group sessions:', error);
+    } catch (err) {
+      console.error('Failed to create group sessions:', err);
+      setError(getErrorMessage(err));
     } finally {
       setIsStartingGroup(false);
     }
@@ -499,13 +528,20 @@ export function AssessmentFlowPage() {
                   </div>
                 </div>
 
+                {error && (
+                  <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-start gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-red-700">{error}</div>
+                  </div>
+                )}
+
                 {assessmentMode === 'single' ? (
                   <Button
                     onClick={handleStartAssessment}
-                    disabled={!selectedPlayerId || !selectedType}
+                    disabled={!selectedPlayerId || !selectedType || isStarting}
                     className="w-full"
                   >
-                    Start Assessment
+                    {isStarting ? 'Starting...' : 'Start Assessment'}
                   </Button>
                 ) : (
                   <Button

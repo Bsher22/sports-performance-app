@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 from datetime import date
+import logging
 
 from app.api.deps import get_db, get_current_active_user
+
+logger = logging.getLogger(__name__)
 from app.core.exceptions import NotFoundException, BadRequestException
 from app.models import AssessmentSession, Player
 from app.schemas.assessment.session import (
@@ -64,9 +67,16 @@ def create_session(
     current_user=Depends(get_current_active_user),
 ):
     """Create a new assessment session."""
+    print(f"[SESSION CREATE] player_id={session_data.player_id}, type={session_data.assessment_type}, date={session_data.assessment_date}")
+
+    # Debug: list all players
+    all_players = db.query(Player).all()
+    print(f"[SESSION CREATE] All players in DB: {[(p.id, p.full_name) for p in all_players]}")
+
     # Validate player exists
     player = db.query(Player).filter(Player.id == session_data.player_id).first()
     if not player:
+        print(f"[SESSION CREATE] Player not found: {session_data.player_id}")
         raise BadRequestException("Player not found")
 
     # Check for duplicate session
@@ -77,6 +87,7 @@ def create_session(
     ).first()
 
     if existing:
+        print(f"[SESSION CREATE] Duplicate session found for player {session_data.player_id}")
         raise BadRequestException(
             f"Assessment session already exists for this player, type, and date"
         )
