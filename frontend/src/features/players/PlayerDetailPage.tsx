@@ -7,7 +7,7 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { playersApi } from '@/api/players';
 import { sessionsApi } from '@/api/assessments';
 import { formatDate, formatAssessmentType } from '@/lib/utils';
-import { ArrowLeft, ClipboardList, BarChart3 } from 'lucide-react';
+import { ArrowLeft, ClipboardList, BarChart3, Pencil } from 'lucide-react';
 
 export function PlayerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -55,6 +55,12 @@ export function PlayerDetailPage() {
             <Link to="/players">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to={`/players/${id}/edit`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
             </Link>
           </Button>
           <Button asChild>

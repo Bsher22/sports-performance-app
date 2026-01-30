@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/LoginPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { PlayersListPage } from '@/features/players/PlayersListPage';
 import { PlayerDetailPage } from '@/features/players/PlayerDetailPage';
+import { PlayerEditPage } from '@/features/players/PlayerEditPage';
 import { TeamsListPage } from '@/features/teams/TeamsListPage';
 import { TeamDetailPage } from '@/features/teams/TeamDetailPage';
 import { AssessmentFlowPage } from '@/features/assessments/AssessmentFlowPage';
@@ -51,7 +52,9 @@ function App() {
 
           {/* Players */}
           <Route path="players" element={<PlayersListPage />} />
+          <Route path="players/new" element={<PlayerEditPage />} />
           <Route path="players/:id" element={<PlayerDetailPage />} />
+          <Route path="players/:id/edit" element={<PlayerEditPage />} />
 
           {/* Teams */}
           <Route path="teams" element={<TeamsListPage />} />
