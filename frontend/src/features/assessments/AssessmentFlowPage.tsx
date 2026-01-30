@@ -13,6 +13,15 @@ import { AssessmentType } from '@/types/assessment';
 import { formatAssessmentType } from '@/lib/utils';
 import { ClipboardList, User, Calendar, Trophy } from 'lucide-react';
 
+// Import assessment input components
+import {
+  OnBaseUInput,
+  TPIPowerInput,
+  SprintInput,
+  KAMSInput,
+  AssessmentReview,
+} from './components';
+
 export function AssessmentFlowPage() {
   const [searchParams] = useSearchParams();
   const preselectedPlayerId = searchParams.get('player');
@@ -24,7 +33,7 @@ export function AssessmentFlowPage() {
     new Date().toISOString().split('T')[0]
   );
 
-  const { startAssessment, currentStep } = useAssessmentStore();
+  const { startAssessment, currentStep, currentSession } = useAssessmentStore();
 
   // Fetch all sports
   const { data: sports, isLoading: loadingSports } = useQuery({
@@ -75,6 +84,34 @@ export function AssessmentFlowPage() {
     }
   };
 
+  // Render the appropriate input component based on assessment type
+  const renderAssessmentInput = () => {
+    if (!currentSession) return null;
+
+    switch (currentSession.assessment_type) {
+      case 'onbaseu':
+        return <OnBaseUInput isPitcher={false} />;
+      case 'pitcher_onbaseu':
+        return <OnBaseUInput isPitcher={true} />;
+      case 'tpi_power':
+        return <TPIPowerInput />;
+      case 'sprint':
+        return <SprintInput />;
+      case 'kams':
+        return <KAMSInput />;
+      default:
+        return (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">
+                Unknown assessment type: {currentSession.assessment_type}
+              </p>
+            </CardContent>
+          </Card>
+        );
+    }
+  };
+
   if (loadingSports) {
     return (
       <PageContainer title="Assessments">
@@ -88,7 +125,13 @@ export function AssessmentFlowPage() {
   return (
     <PageContainer
       title="Assessments"
-      description="Select a sport, athlete, and assessment type to begin"
+      description={
+        currentStep === 'select'
+          ? 'Select a sport, athlete, and assessment type to begin'
+          : currentStep === 'input'
+          ? `Recording ${formatAssessmentType(currentSession?.assessment_type || 'onbaseu')} assessment`
+          : 'Assessment completed'
+      }
     >
       {currentStep === 'select' && (
         <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
@@ -250,20 +293,9 @@ export function AssessmentFlowPage() {
         </div>
       )}
 
-      {currentStep === 'input' && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <ClipboardList className="mx-auto h-12 w-12 text-gray-300" />
-            <h3 className="mt-4 text-lg font-medium">Assessment Input</h3>
-            <p className="mt-2 text-gray-500">
-              Assessment input interface would be displayed here based on the selected type.
-            </p>
-            <p className="text-sm text-gray-400 mt-2">
-              Full implementation includes test-by-test input forms.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {currentStep === 'input' && renderAssessmentInput()}
+
+      {currentStep === 'review' && <AssessmentReview />}
     </PageContainer>
   );
 }
