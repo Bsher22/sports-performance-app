@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { playersApi } from '@/api/players';
 import { teamsApi } from '@/api/teams';
+import { sportsApi } from '@/api/sports';
 import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import { PlayerUpdate } from '@/types/player';
 
@@ -44,6 +45,11 @@ export function PlayerEditPage() {
   const { data: teams } = useQuery({
     queryKey: ['teams'],
     queryFn: () => teamsApi.list(),
+  });
+
+  const { data: sports } = useQuery({
+    queryKey: ['sports'],
+    queryFn: () => sportsApi.list(),
   });
 
   useEffect(() => {
@@ -182,6 +188,25 @@ export function PlayerEditPage() {
                     required
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Sport *
+                </label>
+                <select
+                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  value={formData.sport_id || ''}
+                  onChange={(e) => handleChange('sport_id', e.target.value ? Number(e.target.value) : null)}
+                  required
+                >
+                  <option value="">Select a Sport</option>
+                  {sports?.map((sport) => (
+                    <option key={sport.id} value={sport.id}>
+                      {sport.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

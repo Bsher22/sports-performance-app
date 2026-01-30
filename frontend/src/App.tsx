@@ -8,6 +8,7 @@ import { PlayerDetailPage } from '@/features/players/PlayerDetailPage';
 import { PlayerEditPage } from '@/features/players/PlayerEditPage';
 import { TeamsListPage } from '@/features/teams/TeamsListPage';
 import { TeamDetailPage } from '@/features/teams/TeamDetailPage';
+import { TeamEditPage } from '@/features/teams/TeamEditPage';
 import { AssessmentFlowPage } from '@/features/assessments/AssessmentFlowPage';
 import { PlayerProgressPage } from '@/features/analysis/PlayerProgressPage';
 import { PlayerComparisonPage } from '@/features/analysis/PlayerComparisonPage';
@@ -58,7 +59,9 @@ function App() {
 
           {/* Teams */}
           <Route path="teams" element={<TeamsListPage />} />
+          <Route path="teams/new" element={<TeamEditPage />} />
           <Route path="teams/:id" element={<TeamDetailPage />} />
+          <Route path="teams/:id/edit" element={<TeamEditPage />} />
 
           {/* Assessments */}
           <Route path="assessments" element={<AssessmentFlowPage />} />

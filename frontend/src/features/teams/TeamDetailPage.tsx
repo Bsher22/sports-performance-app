@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { teamsApi } from '@/api/teams';
-import { ArrowLeft, BarChart3, Users } from 'lucide-react';
+import { ArrowLeft, BarChart3, Users, Pencil } from 'lucide-react';
 
 export function TeamDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +60,12 @@ export function TeamDetailPage() {
             <Link to="/teams">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to={`/teams/${teamId}/edit`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
             </Link>
           </Button>
           <Button asChild>
