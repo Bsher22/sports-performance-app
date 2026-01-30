@@ -15,7 +15,7 @@ export function TeamEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const isNew = id === 'new';
+  const isNew = !id || id === 'new';
 
   const [formData, setFormData] = useState<TeamCreate>({
     name: '',
