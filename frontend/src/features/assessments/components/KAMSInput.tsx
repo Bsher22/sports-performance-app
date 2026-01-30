@@ -9,6 +9,8 @@ import { sessionsApi } from '@/api/assessments/sessions';
 import { useAssessmentStore } from '@/store/assessmentStore';
 import { KAMSResultCreate } from '@/types/assessment';
 import { ChevronLeft, ChevronRight, Check, X, AlertCircle, Upload, FileText } from 'lucide-react';
+import { TestInstructionsButton } from './TestInstructionsModal';
+import { getKAMSInstruction } from '../data/kamsInstructions';
 
 // KAMS test configuration
 interface KAMSTestConfig {
@@ -387,8 +389,11 @@ export function KAMSInput() {
               <CardTitle>{currentTest.name}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">{currentTest.description}</p>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Test {currentTestIndex + 1} of {KAMS_TESTS.length}
+            <div className="flex items-center gap-3">
+              <TestInstructionsButton instruction={getKAMSInstruction(currentTest.test_type)} />
+              <div className="text-sm text-muted-foreground">
+                Test {currentTestIndex + 1} of {KAMS_TESTS.length}
+              </div>
             </div>
           </div>
         </CardHeader>

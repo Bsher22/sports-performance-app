@@ -5,3 +5,4 @@ export { KAMSInput } from './KAMSInput';
 export { AssessmentReview } from './AssessmentReview';
 export { GroupAssessmentWrapper } from './GroupAssessmentWrapper';
 export { GroupAssessmentReview } from './GroupAssessmentReview';
+export { TestInstructionsModal, TestInstructionsButton } from './TestInstructionsModal';

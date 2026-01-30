@@ -9,6 +9,8 @@ import { sessionsApi } from '@/api/assessments/sessions';
 import { useAssessmentStore } from '@/store/assessmentStore';
 import { TestDefinition, TPIPowerResultCreate } from '@/types/assessment';
 import { ChevronLeft, ChevronRight, Check, X, AlertCircle, Ruler } from 'lucide-react';
+import { TestInstructionsButton } from './TestInstructionsModal';
+import { getTPIPowerInstruction } from '../data/tpiPowerInstructions';
 
 // TPI Power test definitions based on backend schema
 const TPI_POWER_TESTS: TestDefinition[] = [
@@ -213,8 +215,11 @@ export function TPIPowerInput() {
                 <p className="text-sm text-muted-foreground mt-1">{currentTest.description}</p>
               )}
             </div>
-            <div className="text-sm text-muted-foreground">
-              Test {currentTestIndex + 1} of {tests.length}
+            <div className="flex items-center gap-3">
+              <TestInstructionsButton instruction={getTPIPowerInstruction(currentTest.code)} />
+              <div className="text-sm text-muted-foreground">
+                Test {currentTestIndex + 1} of {tests.length}
+              </div>
             </div>
           </div>
         </CardHeader>

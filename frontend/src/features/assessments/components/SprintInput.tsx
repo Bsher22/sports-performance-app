@@ -9,6 +9,8 @@ import { sessionsApi } from '@/api/assessments/sessions';
 import { useAssessmentStore } from '@/store/assessmentStore';
 import { TestDefinition, SprintResultCreate } from '@/types/assessment';
 import { ChevronLeft, ChevronRight, Check, X, AlertCircle, Timer } from 'lucide-react';
+import { TestInstructionsButton } from './TestInstructionsModal';
+import { getSprintInstruction } from '../data/sprintInstructions';
 
 // Sprint test definitions based on backend schema
 const SPRINT_TESTS: TestDefinition[] = [
@@ -267,8 +269,11 @@ export function SprintInput() {
                 <p className="text-sm text-muted-foreground mt-1">{currentTest.description}</p>
               )}
             </div>
-            <div className="text-sm text-muted-foreground">
-              Test {currentTestIndex + 1} of {tests.length}
+            <div className="flex items-center gap-3">
+              <TestInstructionsButton instruction={getSprintInstruction(currentTest.code)} />
+              <div className="text-sm text-muted-foreground">
+                Test {currentTestIndex + 1} of {tests.length}
+              </div>
             </div>
           </div>
         </CardHeader>

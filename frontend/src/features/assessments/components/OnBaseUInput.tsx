@@ -8,6 +8,8 @@ import { sessionsApi } from '@/api/assessments/sessions';
 import { useAssessmentStore } from '@/store/assessmentStore';
 import { TestDefinition, OnBaseUResultCreate } from '@/types/assessment';
 import { ChevronLeft, ChevronRight, Check, X, AlertCircle } from 'lucide-react';
+import { TestInstructionsButton } from './TestInstructionsModal';
+import { getOnBaseUInstruction } from '../data/onbaseUInstructions';
 
 // Test definitions based on backend schema (used as fallback)
 const ONBASEU_TESTS: TestDefinition[] = [
@@ -296,8 +298,11 @@ export function OnBaseUInput({ isPitcher = false }: OnBaseUInputProps) {
                 </p>
                 <CardTitle className="mt-1">{currentTest.name}</CardTitle>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Test {currentTestIndex + 1} of {tests.length}
+              <div className="flex items-center gap-3">
+                <TestInstructionsButton instruction={getOnBaseUInstruction(currentTest.code)} />
+                <div className="text-sm text-muted-foreground">
+                  Test {currentTestIndex + 1} of {tests.length}
+                </div>
               </div>
             </div>
           </CardHeader>
