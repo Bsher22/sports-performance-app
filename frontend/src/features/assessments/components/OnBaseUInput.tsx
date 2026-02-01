@@ -299,7 +299,7 @@ export function OnBaseUInput({ isPitcher = false }: OnBaseUInputProps) {
                 <CardTitle className="mt-1">{currentTest.name}</CardTitle>
               </div>
               <div className="flex items-center gap-3">
-                <TestInstructionsButton instruction={getOnBaseUInstruction(currentTest.code)} />
+                <TestInstructionsButton instruction={getOnBaseUInstruction(currentTest.code, isPitcher)} />
                 <div className="text-sm text-muted-foreground">
                   Test {currentTestIndex + 1} of {tests.length}
                 </div>
