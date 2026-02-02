@@ -225,6 +225,17 @@ def create_initial_sports():
         db.close()
 
 
+def parse_height_to_inches(height_str: str) -> int:
+    """Convert height string like '6-0' or '5-11' to total inches."""
+    try:
+        parts = height_str.split('-')
+        feet = int(parts[0])
+        inches = int(parts[1]) if len(parts) > 1 else 0
+        return feet * 12 + inches
+    except:
+        return None
+
+
 def create_sample_players():
     """Create sample players for testing."""
     db = SessionLocal()
@@ -259,6 +270,97 @@ def create_sample_players():
         db.close()
 
 
+def seed_rit_baseball_roster():
+    """Seed RIT Baseball roster players (2025 roster, excluding Gr. and Sr. except Wozny brothers)."""
+    db = SessionLocal()
+    try:
+        # Get Baseball sport ID
+        baseball = db.query(Sport).filter(Sport.code == "baseball").first()
+        if not baseball:
+            print("Baseball sport not found, skipping RIT Baseball roster seeding")
+            return
+
+        # Check if we already have these players (check for a known player code)
+        existing = db.query(Player).filter(Player.player_code == "P20250001").first()
+        if existing:
+            print("RIT Baseball roster already seeded, skipping")
+            return
+
+        # RIT Baseball 2025 Roster - Eligible players (Fr, So, Jr + Wozny exceptions)
+        # Excluded: Gr./Sr. (except Wozny), Luc Rising, Kevin McNulty, Leo Miksitz,
+        #           Dorian Stroud, Jack Joseph, Josh Eagle
+        roster = [
+            # Number, First, Last, Year, Position, Height, Bats/Throws
+            (20, "Liam", "Miller", "Jr.", "RHP", "6-1", "R/R"),
+            (3, "Charlie", "Slaymaker", "Jr.", "IF", "5-10", "R/R"),
+            (11, "Evan", "Kurtz", "So.", "IF", "5-9", "R/R"),
+            (4, "Mikey", "Zacher", "So.", "C/IF", "5-10", "R/R"),
+            (12, "Jarin", "Moses", "Jr.", "LHP/OF", "6-0", "L/L"),
+            (6, "Caelen", "Kim", "Jr.", "LHP/1B", "6-1", "L/L"),
+            (34, "Randy", "Dodig", "Jr.", "1B", "6-0", "L/L"),
+            (19, "Zachary", "Meehl", "Fy.", "C", "6-1", "R/R"),
+            (14, "Dewey", "Rautzhan", "So.", "RHP", "6-5", "R/R"),
+            (18, "Ty", "Book", "Fy.", "OF", "5-10", "L/R"),
+            (25, "Ryan", "Moran", "Fy.", "RHP", "5-11", "R/R"),
+            (10, "Jackson", "Rusiecki", "Jr.", "OF", "6-0", "L/R"),
+            (23, "Joseph", "Wozny", "Sr.", "RHP", "6-5", "R/R"),  # Exception: included
+            (9, "Isaac", "Braegelmann", "So.", "IF/C", "5-9", "R/R"),
+            (24, "Roberto", "Reade", "Jr.", "RHP", "5-11", "R/R"),
+            (30, "Owen", "Fisher", "Fy.", "RHP", "6-2", "L/R"),
+            (35, "Colin", "Spidal", "Fy.", "LHP", "6-3", "R/L"),
+            (7, "Graham", "Smith", "So.", "OF", "6-1", "L/L"),
+            (31, "Leo", "Boehringer", "Fy.", "RHP", "6-5", "S/R"),
+            (38, "Jack", "Luensmann", "Jr.", "RHP", "6-4", "R/R"),
+            (27, "Aidan", "Chouinard", "Fy.", "OF", "5-11", "L/L"),
+            (44, "Rocky", "Johnson", "Fy.", "RHP", "6-3", "R/R"),
+            (33, "Timothy", "Wozny", "Sr.", "RHP", "6-4", "R/R"),  # Exception: included
+            (39, "Remington", "Lee", "Fy.", "IF", "5-11", "R/R"),
+        ]
+
+        # Determine graduation year based on class year
+        current_year = 2025
+        year_map = {
+            "Fy.": current_year + 4,  # Freshman -> 2029
+            "So.": current_year + 3,  # Sophomore -> 2028
+            "Jr.": current_year + 2,  # Junior -> 2027
+            "Sr.": current_year + 1,  # Senior -> 2026
+        }
+
+        created_count = 0
+        for idx, (number, first, last, year, position, height, bt) in enumerate(roster, start=1):
+            # Parse bats/throws
+            bats, throws = bt.split('/') if '/' in bt else (bt[0], bt[0])
+
+            # Determine if pitcher based on position containing HP or P
+            pos_parts = position.split('/')
+            is_pitcher = any('HP' in p or (p in ['RHP', 'LHP', 'P']) for p in pos_parts)
+            is_position_player = any(p not in ['RHP', 'LHP', 'P'] for p in pos_parts)
+
+            player = Player(
+                player_code=f"P2025{idx:04d}",
+                first_name=first,
+                last_name=last,
+                sport_id=baseball.id,
+                graduation_year=year_map.get(year, current_year + 1),
+                is_pitcher=is_pitcher,
+                is_position_player=is_position_player,
+                bats=bats,
+                throws=throws,
+                height_inches=parse_height_to_inches(height),
+                is_active=True,
+            )
+            db.add(player)
+            created_count += 1
+
+        db.commit()
+        print(f"Seeded {created_count} RIT Baseball roster players")
+    except Exception as e:
+        print(f"Error seeding RIT Baseball roster: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -266,6 +368,7 @@ async def lifespan(app: FastAPI):
     create_initial_admin()
     create_initial_sports()
     create_sample_players()
+    seed_rit_baseball_roster()
     yield
     # Shutdown
     pass
